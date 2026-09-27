@@ -1,0 +1,25 @@
+services:
+  questdb:
+    image: questdb/questdb:10.0.1
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - questdb-data:/var/lib/questdb
+
+  questdb-fetcher-egym:
+    build: .
+    restart: unless-stopped
+    environment:
+      - QUESTDB_HOST=http://questdb:9000
+      - EGYM_EMAIL
+      - EGYM_PASSWORD
+      - EGYM_BASE_URL
+      - FETCH_INTERVAL_HOURS
+      - FETCH_OVERLAP_DAYS
+      # Warning: delete-tables permanently removes the muscle imbalance, activity level
+      # and ranking history, which cannot be fetched from EGYM again.
+      - FETCH_RESET
+
+volumes:
+  questdb-data:

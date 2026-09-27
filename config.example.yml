@@ -1,8 +1,0 @@
-egym_email: <your email address>
-egym_password: <your password>
-influx_host: <host of influxdb>
-influx_port: <port of influxdb>
-influx_user: <user>
-influx_password: <pass>
-influx_db: <db>
-

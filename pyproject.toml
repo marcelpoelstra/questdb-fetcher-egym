@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "questdb-fetcher-egym"
+version = "2.0"
+description = "Copies the data of an EGYM Fitness account into QuestDB"
+authors = [{ name = "Marcel Poelstra", email = "marcel@marcelpoelstra.nl" }]
+requires-python = ">=3.10"
+dependencies = [
+    "python-egym @ git+https://github.com/marcelpoelstra/python-egym.git@master",
+    "questdb",
+    "requests",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["questdb_fetcher_egym"]
