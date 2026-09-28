@@ -138,7 +138,3 @@ Each key keeps one row with the latest values.
 | Bio age | the date of the value, at 00:00 |
 | Activity level, ranking | the time the run wrote the row |
 | Metadata tables and `meta_reset` | 1970-01-01T00:00:00Z |
-
-## Upgrading from the 2021 version
-
-`config.yml` is replaced by the environment variables above, and the InfluxDB 1.x measurement `egymdata` by the QuestDB tables above.
