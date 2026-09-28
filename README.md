@@ -28,14 +28,48 @@ The two numbers accept positive decimal values, for example `0.5`. An invalid va
 
 ## Running with Docker
 
-`compose.yaml` runs two services: `questdb`, with its data in the volume `questdb-data`, and `questdb-fetcher-egym`, built from this repository. Both restart unless stopped. The fetcher takes the variables above from the shell or from a `.env` file next to `compose.yaml`; git ignores `.env`.
+`compose.yaml` runs two services: `questdb`, with its data in the volume `questdb-data`, and `questdb-fetcher-egym`, built from this repository. Both restart unless stopped; `docker compose up` starts the fetcher once QuestDB answers queries. The fetcher takes the variables above from the file `.env` next to `compose.yaml`, or from the shell; git ignores `.env`.
+
+1. Get the repository:
+
+   ```bash
+   git clone https://github.com/marcelpoelstra/questdb-fetcher-egym.git
+   cd questdb-fetcher-egym
+   ```
+
+2. Create `.env` from the template:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Open `.env` and fill in your EGYM Fitness email and password. Keep the single quotes around the password: they keep characters such as `$`, `#` and spaces as they are. Optional variables from the table above go in `.env` too, one `NAME=value` per line.
+
+3. Build the image and start both services:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+4. Follow the fetcher's log. The first run imports the whole history of the account and ends with `Cycle finished, next cycle at <time>`:
+
+   ```bash
+   docker compose logs -f questdb-fetcher-egym
+   ```
+
+5. Open QuestDB's web console, with its notebooks, at `http://localhost:9000`. QuestDB runs without authentication, and `compose.yaml` publishes port 9000 on the host.
+
+After a change to `.env`, run `docker compose up -d`. Compose recreates the fetcher with the new values, while `docker compose restart` keeps the old ones.
+
+To update, get the latest code and rebuild the image without Docker's cache, so that it also installs the latest python-egym:
 
 ```bash
-docker compose up -d --build
-docker compose logs -f questdb-fetcher-egym
+git pull
+docker compose build --no-cache
+docker compose up -d
 ```
 
-QuestDB's web console, with its notebooks, is at `http://localhost:9000`. QuestDB runs without authentication, and `compose.yaml` publishes port 9000 on the host.
+`docker compose down` stops and removes both containers and keeps the data in the volume `questdb-data`. **Warning:** `docker compose down -v` also deletes that volume and all stored data. That includes the muscle imbalance, activity level and ranking history, which cannot be fetched from EGYM again.
 
 ## How it runs
 
@@ -49,7 +83,7 @@ A table that already holds data is fetched from its newest point minus `FETCH_OV
 
 **Warning:** `delete-tables` permanently removes the muscle imbalance, activity level and ranking history. The service fetches only the current values of these, so their history exists only in QuestDB and cannot be fetched again.
 
-Set `FETCH_RESET` in the shell or in `.env` and run `docker compose up -d`: Compose recreates the container with the new value, while `docker compose restart` keeps the old one. The service applies the reset at start-up, before its first run:
+`compose.yaml` passes `FETCH_RESET` to the fetcher only when its line `- FETCH_RESET` is uncommented; by default it is commented out. To reset, uncomment that line, add `FETCH_RESET=<value>` to `.env` and run `docker compose up -d`. Compose recreates the container with the new value, while `docker compose restart` keeps the old one. The service applies the reset at start-up, before its first run:
 
 | Value | Dropped before the first run |
 | --- | --- |
@@ -59,7 +93,7 @@ Set `FETCH_RESET` in the shell or in `.env` and run `docker compose up -d`: Comp
 
 With every value, the service then looks for the start of the history again and fetches every dated table from there, replacing stored rows with the same upsert keys. With `reimport`, rows of records that EGYM no longer returns stay in QuestDB. When the run fails, the next runs do the same until one completes. The dropping happens once per start of the service, so a restart before a run completes drops again.
 
-When a run after the reset completes, the service records the value in the table `meta_reset`. While `FETCH_RESET` keeps that value, later restarts skip the reset and log a warning that the variable can be removed. A different value runs its own reset. To remove the variable, delete it from the shell or `.env` and run `docker compose up -d` again. To run the same reset again later, start the service once without `FETCH_RESET`: that start removes `meta_reset`.
+When a run after the reset completes, the service records the value in the table `meta_reset`. While `FETCH_RESET` keeps that value, later restarts skip the reset and log a warning that the variable can be removed. A different value runs its own reset. To remove the variable, delete it from `.env`, comment the line in `compose.yaml` out again and run `docker compose up -d`. To run the same reset again later, start the service once without `FETCH_RESET`: that start removes `meta_reset`.
 
 Drop the service's tables only through `FETCH_RESET`, or while the service is stopped.
 
