@@ -28,7 +28,7 @@ The two numbers accept positive decimal values, for example `0.5`. An invalid va
 
 ## Running with Docker
 
-`compose.yaml` runs two services: `questdb`, with its data in the volume `questdb-data`, and `questdb-fetcher-egym`, built from this repository. Both restart unless stopped; `docker compose up` starts the fetcher once QuestDB answers queries. The fetcher takes the variables above from the file `.env` next to `compose.yaml`, or from the shell; git ignores `.env`.
+`compose.yaml` runs two services: `questdb`, with its data in the volume `questdb-data`, and `questdb-fetcher-egym`, built from this repository. Both restart unless stopped; `docker compose up` starts the fetcher once QuestDB answers queries. QuestDB's open files limit is set to 1048576, the value QuestDB recommends. The fetcher takes the variables above from the file `.env` next to `compose.yaml`, or from the shell; git ignores `.env`.
 
 1. Get the repository:
 
