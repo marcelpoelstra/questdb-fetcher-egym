@@ -4,7 +4,7 @@ A service that copies the data of an EGYM Fitness account into QuestDB. On its f
 
 It reads the data through [python-egym](https://github.com/marcelpoelstra/python-egym) and never writes anything to EGYM. It is not affiliated with or endorsed by EGYM.
 
-Inspired by influxdb-fetcher-egym (retired) by @bitstacker.
+This is version 2.0, refactored from an earlier (2021) improved version based on influxdb-fetcher-egym (retired) by @bitstacker.
 
 ## Requirements
 
